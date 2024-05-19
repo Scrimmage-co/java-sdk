@@ -1,0 +1,19 @@
+// my-monorepo/build.gradle
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+subprojects {
+    apply plugin: 'java'
+
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.28'
+        annotationProcessor 'org.projectlombok:lombok:1.18.28'
+    }
+
+    // Ensure Lombok annotation processing is enabled
+    tasks.withType(JavaCompile) {
+        options.annotationProcessorPath = configurations.annotationProcessor
+    }
+}

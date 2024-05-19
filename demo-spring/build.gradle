@@ -1,0 +1,13 @@
+plugins {
+    id 'application'
+}
+group = 'com.scrimmage'
+version = '0.0.0.1'
+
+dependencies {
+    implementation project(":spring")
+}
+
+application {
+    mainClass = 'com.scrimmage.demo.spring.MainSD'
+}

@@ -1,0 +1,12 @@
+plugins {
+    id 'application'
+}
+group = 'com.scrimmage'
+version = '0.0.1'
+
+dependencies {
+    implementation project(":core")
+}
+application {
+    mainClass = 'com.scrimmage.demo.core.MainCD'
+}

@@ -1,0 +1,6 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.scrimmage'
+version = '0.0.1'
