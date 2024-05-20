@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Rewardable {
 
-  private String id;
-
   private String type;
 
   private String userId;

@@ -1,21 +1,41 @@
 package com.scrimmage.spring;
 
 import com.scrimmage.common.constant.LogLevel;
-import com.scrimmage.common.dto.ScrimmageApiServiceType;
-import java.util.Map;
+import jakarta.annotation.PostConstruct;
+import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Component
 public class ScrimmageConfigService {
-  String logLevel = LogLevel.LOG.toString();
-  boolean secure = true;
-  boolean validateApiServerEndpoint = true;
-  String apiServerEndpoint;
-  Map<ScrimmageApiServiceType, String> privateKey;
+
+  @PostConstruct
+  public void init() {
+
+  }
+
+  @Value("${logLevel:log}")
+  private LogLevel logLevel;
+
+  @Value("${secure:true}")
+  private Boolean secure;
+
+  @Value("${validateApiServerEndpoint:true}")
+  private Boolean validateApiServerEndpoint;
+
+  @Value("${apiServerEndpoint}")
+  private String apiServerEndpoint;
+
+  @Value("${privateKey}")
+  private String privateKey;
+
+  @Value("${namespace}")
   private String namespace;
 
 }

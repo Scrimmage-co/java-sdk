@@ -1,13 +1,13 @@
 plugins {
     id 'application'
+    id "org.springframework.boot" version "3.2.2"
+    id "io.spring.dependency-management" version "1.1.0"
 }
 group = 'com.scrimmage'
 version = '0.0.0.1'
 
 dependencies {
     implementation project(":spring")
-}
-
-application {
-    mainClass = 'com.scrimmage.demo.spring.MainSD'
+    implementation project(":common")
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 }

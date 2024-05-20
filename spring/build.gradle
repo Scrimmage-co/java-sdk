@@ -10,6 +10,5 @@ version = '0.0.1'
 dependencies {
     implementation project(":common")
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-    implementation group: 'org.springframework', name: 'spring-context'
 }
 

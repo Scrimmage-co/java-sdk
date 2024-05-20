@@ -1,20 +1,31 @@
-package com.scrimmage.spring;
+package com.scrimmage.core;
 
 import com.scrimmage.common.exceptions.AccountNotLinkedException;
 import com.scrimmage.common.exceptions.ScrimmageServiceUnavailable;
 import com.scrimmage.common.service.IAPIService;
 import com.scrimmage.common.service.ILoggerService;
 import com.scrimmage.common.service.IStatusService;
-import org.springframework.stereotype.Service;
+import lombok.Getter;
 
-@Service
 public class ScrimmageStatusService implements IStatusService {
+
+  public static ScrimmageStatusService getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new ScrimmageStatusService(ScrimmageServiceFactory.api,
+          ScrimmageServiceFactory.logger,
+          ScrimmageServiceFactory.config);
+    }
+    return INSTANCE;
+  }
+
+  private static ScrimmageStatusService INSTANCE;
 
   private final IAPIService iApiService;
   private final ILoggerService loggerService;
   private final ScrimmageConfigService scrimmageConfigService;
 
-  public ScrimmageStatusService(IAPIService iapiService, ILoggerService loggerService,
+
+  private ScrimmageStatusService(IAPIService iapiService, ILoggerService loggerService,
       ScrimmageConfigService scrimmageConfigService) {
     this.iApiService = iapiService;
     this.loggerService = loggerService;

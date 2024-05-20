@@ -20,5 +20,5 @@ public class RewardableEventDTO {
 
   private String eventId;
 
-  private Rewardable body;
+  private Reward body;
 }

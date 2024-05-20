@@ -23,4 +23,14 @@ public enum LogLevel {
   public String toString() {
     return this.value;
   }
+
+
+  public static LogLevel getEnum(String value) {
+    for (LogLevel v : values()) {
+      if (v.toString().equalsIgnoreCase(value)) {
+        return v;
+      }
+    }
+    throw new IllegalArgumentException();
+  }
 }

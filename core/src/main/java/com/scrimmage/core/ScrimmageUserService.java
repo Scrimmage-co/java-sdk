@@ -1,13 +1,21 @@
-package com.scrimmage.spring;
+package com.scrimmage.core;
 
 import com.scrimmage.common.dto.TokenOption;
 import com.scrimmage.common.dto.TokenResponseDTO;
 import com.scrimmage.common.service.IAPIService;
 import com.scrimmage.common.service.IUserService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ScrimmageUserService implements IUserService {
+
+  public static ScrimmageUserService getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new ScrimmageUserService(ScrimmageServiceFactory.api);
+    }
+    return INSTANCE;
+  }
+
+  private static ScrimmageUserService INSTANCE;
+
 
   private final IAPIService iApiService;
 

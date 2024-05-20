@@ -6,10 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class Reward {
-  private Double amount;
-  private String currency;
+@AllArgsConstructor
+@NoArgsConstructor
+public class TokenResponseDTO {
+  String id;
+  String token;
+  boolean userExists;
 }

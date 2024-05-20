@@ -1,16 +1,23 @@
-package com.scrimmage.spring;
+package com.scrimmage.core;
 
 import com.scrimmage.common.constant.LogLevel;
 import com.scrimmage.common.service.ILoggerService;
 import java.util.Arrays;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ScrimmageLoggerService implements ILoggerService {
+
+  public static ScrimmageLoggerService getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new ScrimmageLoggerService(ScrimmageServiceFactory.config);
+    }
+    return INSTANCE;
+  }
+
+  private static ScrimmageLoggerService INSTANCE;
 
   private final ScrimmageConfigService scrimmageConfigService;
 
-  public ScrimmageLoggerService(ScrimmageConfigService scrimmageConfigService) {
+  private ScrimmageLoggerService(ScrimmageConfigService scrimmageConfigService) {
     this.scrimmageConfigService = scrimmageConfigService;
   }
 

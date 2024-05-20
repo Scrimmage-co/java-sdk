@@ -17,4 +17,10 @@ public enum ScrimmageApiServiceType {
   public String toString() {
     return this.value;
   }
+
+  public static String getUrl(String url,
+      ScrimmageApiServiceType scrimmageApiServiceType, String subroute) {
+    return url + "/" + scrimmageApiServiceType.toString() + (subroute == null || subroute.isBlank()
+        ? "" : subroute);
+  }
 }

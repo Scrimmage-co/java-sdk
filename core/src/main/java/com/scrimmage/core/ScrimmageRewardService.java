@@ -1,4 +1,4 @@
-package com.scrimmage.spring;
+package com.scrimmage.core;
 
 import com.scrimmage.common.dto.Reward;
 import com.scrimmage.common.dto.Rewardable;
@@ -8,14 +8,22 @@ import com.scrimmage.common.service.IRewardService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ScrimmageRewardService implements IRewardService {
+
+  public static ScrimmageRewardService getInstance() {
+    if (INSTANCE == null) {
+      INSTANCE = new ScrimmageRewardService(ScrimmageServiceFactory.api);
+    }
+    return INSTANCE;
+  }
+
+  private static ScrimmageRewardService INSTANCE;
+
 
   private final IAPIService iApiService;
 
-  public ScrimmageRewardService(IAPIService iapiService) {
+  private ScrimmageRewardService(IAPIService iapiService) {
     this.iApiService = iapiService;
   }
 

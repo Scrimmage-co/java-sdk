@@ -8,8 +8,8 @@ subprojects {
     apply plugin: 'java'
 
     dependencies {
-        compileOnly 'org.projectlombok:lombok:1.18.28'
-        annotationProcessor 'org.projectlombok:lombok:1.18.28'
+        compileOnly 'org.projectlombok:lombok:1.18.22'
+        annotationProcessor 'org.projectlombok:lombok:1.18.22'
     }
 
     // Ensure Lombok annotation processing is enabled
