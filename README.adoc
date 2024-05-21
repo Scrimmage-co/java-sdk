@@ -1,0 +1,38 @@
+= *Scrimmage Reward Program*
+
+*Overview*
+
+Scrimmage Reward Program is a Java library designed to manage and track reward programs for various applications. It provides a flexible and easy-to-use API for creating, updating, and managing user rewards, points, and redemption processes.
+
+
+*Features*
+
+User Management: Get User Token.
+Reward Points System: Assign, update, and track reward points for users.
+Notifications: Check server up/down status.
+
+*Modules*
+
+1. Spring Boot Module
+
+2. Core Java Module
+
+**Spring Boot Module**
+
+    <dependency>
+        <groupId>com.scrimmage</groupId>
+        <artifactId>spring</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+
+**Core Module**
+
+    <dependency>
+        <groupId>com.scrimmage</groupId>
+        <artifactId>core</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+
+Check sample app *demo-spring*(for spring module) and *demo-core*(for core module)
+
+Have a good day :)
