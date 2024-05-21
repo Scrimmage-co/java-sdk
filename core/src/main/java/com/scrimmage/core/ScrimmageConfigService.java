@@ -1,12 +1,14 @@
 package com.scrimmage.core;
 
 import com.scrimmage.common.constant.LogLevel;
+import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.net.URL;
 import java.util.Objects;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.Data;
-import lombok.Getter;
-import org.yaml.snakeyaml.Yaml;
 
 @Data
 public class ScrimmageConfigService {
@@ -19,29 +21,68 @@ public class ScrimmageConfigService {
   }
   private static  ScrimmageConfigService INSTANCE;
 
-  private ScrimmageConfigService() {
-    Yaml yaml = new Yaml();
-    InputStream resourceAsStream = this.getClass().getClassLoader()
-        .getResourceAsStream("application.yaml");
-    Map<String, String> scrimmageConfigService = yaml.load(resourceAsStream);
-    this.logLevel = LogLevel.getEnum(scrimmageConfigService.get("logLevel"));
-    this.secure = Boolean.valueOf(Objects.toString(scrimmageConfigService.get("secure")));
-    this.validateApiServerEndpoint =Boolean.valueOf(Objects.toString(scrimmageConfigService.get("validateApiServerEndpoint")));
-    this.apiServerEndpoint = scrimmageConfigService.get("apiServerEndpoint");
-    this.privateKey = scrimmageConfigService.get("privateKey");
-    this.namespace = scrimmageConfigService.get("namespace");
-  }
+  private Boolean apiServerEndpointSecure;
 
   private LogLevel logLevel;
+  private Boolean apiServerEndpointValidate;
 
-  private Boolean secure;
+  private ScrimmageConfigService() {
+    Properties properties = new Properties();
 
-  private Boolean validateApiServerEndpoint;
+    try (InputStream resourceAsStream = this.getClass().getClassLoader()
+        .getResourceAsStream("application.properties")) {
+      properties.load(resourceAsStream);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    this.apiServerEndpointSecure =
+        properties.get("api.server.endpoint.secure") != null && Boolean.parseBoolean(
+            Objects.toString(properties.get("api.server.endpoint.secure")));
+
+    this.apiServerEndpoint = String.valueOf(properties.get("api.server.endpoint"));
+
+    validateProtocol(apiServerEndpoint, apiServerEndpointSecure);
+
+    this.apiServerEndpointValidate =
+        properties.get("api.server.endpoint.validate") != null && Boolean.parseBoolean(
+            Objects.toString(properties.get("api.server.endpoint.validate")));
+
+    this.logLevel = properties.get("log.level") != null ?
+        LogLevel.getEnum(String.valueOf(properties.get("log.level")))
+        : LogLevel.LOG;
+
+    this.privateKey = String.valueOf(properties.get("private.key"));
+
+    this.namespace = String.valueOf(properties.get("namespace"));
+
+    if (namespace == null || namespace.isEmpty()) {
+      throw new RuntimeException("namespace is required");
+    }
+    if (privateKey == null || privateKey.isEmpty()) {
+      throw new RuntimeException("private.key is required");
+    }
+  }
 
   private String apiServerEndpoint;
 
   private String privateKey;
 
   private String namespace;
+
+  void validateProtocol(String url, Boolean secure) {
+    try {
+      new URL(url).toURI();
+      if (secure) {
+        String regex = "^https://";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(url);
+        if (!matcher.find()) {
+          throw new RuntimeException(String.format("Invalid URL: %s", url));
+        }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 }

@@ -23,7 +23,7 @@ public class ScrimmageStatusService implements IStatusService {
 
   @Override
   public boolean verify() {
-    if (!scrimmageConfigService.getValidateApiServerEndpoint()) {
+    if (!scrimmageConfigService.getAiServerEndpointValidate()) {
       return true;
     }
     try {

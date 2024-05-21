@@ -35,4 +35,10 @@ Notifications: Check server up/down status.
 
 Check sample app *demo-spring*(for spring module) and *demo-core*(for core module)
 
+Add configuration to property file to get started
+
+1. namespace=
+2. api.server.endpoint=
+3. private.key=
+
 Have a good day :)

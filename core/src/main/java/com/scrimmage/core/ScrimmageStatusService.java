@@ -5,7 +5,6 @@ import com.scrimmage.common.exceptions.ScrimmageServiceUnavailable;
 import com.scrimmage.common.service.IAPIService;
 import com.scrimmage.common.service.ILoggerService;
 import com.scrimmage.common.service.IStatusService;
-import lombok.Getter;
 
 public class ScrimmageStatusService implements IStatusService {
 
@@ -34,7 +33,7 @@ public class ScrimmageStatusService implements IStatusService {
 
   @Override
   public boolean verify() {
-    if (!scrimmageConfigService.getValidateApiServerEndpoint()) {
+    if (!scrimmageConfigService.getApiServerEndpointValidate()) {
       return true;
     }
     try {
