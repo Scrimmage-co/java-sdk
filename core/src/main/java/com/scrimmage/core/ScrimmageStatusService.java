@@ -8,32 +8,21 @@ import com.scrimmage.common.service.IStatusService;
 
 public class ScrimmageStatusService implements IStatusService {
 
-  public static ScrimmageStatusService getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new ScrimmageStatusService(ScrimmageServiceFactory.api,
-          ScrimmageServiceFactory.logger,
-          ScrimmageServiceFactory.config);
-    }
-    return INSTANCE;
-  }
-
-  private static ScrimmageStatusService INSTANCE;
-
   private final IAPIService iApiService;
   private final ILoggerService loggerService;
-  private final ScrimmageConfigService scrimmageConfigService;
+  private final ScrimmageConfig scrimmageConfig;
 
 
-  private ScrimmageStatusService(IAPIService iapiService, ILoggerService loggerService,
-      ScrimmageConfigService scrimmageConfigService) {
+  public ScrimmageStatusService(IAPIService iapiService, ILoggerService loggerService,
+      ScrimmageConfig scrimmageConfig) {
     this.iApiService = iapiService;
     this.loggerService = loggerService;
-    this.scrimmageConfigService = scrimmageConfigService;
+    this.scrimmageConfig = scrimmageConfig;
   }
 
   @Override
   public boolean verify() {
-    if (!scrimmageConfigService.getApiServerEndpointValidate()) {
+    if (!scrimmageConfig.getApiServerEndpointValidate()) {
       return true;
     }
     try {

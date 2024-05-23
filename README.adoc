@@ -22,7 +22,7 @@ Notifications: Check server up/down status.
     <dependency>
         <groupId>com.scrimmage</groupId>
         <artifactId>spring</artifactId>
-        <version>1.0.0</version>
+        <version>0.0.1</version>
     </dependency>
 
 **Core Module**
@@ -30,15 +30,26 @@ Notifications: Check server up/down status.
     <dependency>
         <groupId>com.scrimmage</groupId>
         <artifactId>core</artifactId>
-        <version>1.0.0</version>
+        <version>0.0.1</version>
     </dependency>
 
 Check sample app *demo-spring*(for spring module) and *demo-core*(for core module)
 
-Add configuration to property file to get started
+**Create Events **
 
-1. namespace=
-2. api.server.endpoint=
-3. private.key=
+
+**Core Java **
+
+      new ScrimmageRewardContainer(ScrimmageConfig
+        .builder()
+        .namespace("")
+        .privateKey("")
+        .apiServerEndpoint("")
+        .build()).getApi().getUserToken(tokenOption);
+
+*Spring:*
+
+
+Create multiple bean provided in demo spring application.
 
 Have a good day :)

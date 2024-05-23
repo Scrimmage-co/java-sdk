@@ -8,9 +8,7 @@ import com.scrimmage.common.service.IRewardService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ScrimmageRewardService implements IRewardService {
 
   private final IAPIService iApiService;

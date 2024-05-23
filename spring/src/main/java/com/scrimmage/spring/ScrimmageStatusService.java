@@ -5,25 +5,24 @@ import com.scrimmage.common.exceptions.ScrimmageServiceUnavailable;
 import com.scrimmage.common.service.IAPIService;
 import com.scrimmage.common.service.ILoggerService;
 import com.scrimmage.common.service.IStatusService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ScrimmageStatusService implements IStatusService {
 
   private final IAPIService iApiService;
   private final ILoggerService loggerService;
-  private final ScrimmageConfigService scrimmageConfigService;
+  private final ScrimmageConfig scrimmageConfig;
 
   public ScrimmageStatusService(IAPIService iapiService, ILoggerService loggerService,
-      ScrimmageConfigService scrimmageConfigService) {
+      ScrimmageConfig scrimmageConfig) {
     this.iApiService = iapiService;
     this.loggerService = loggerService;
-    this.scrimmageConfigService = scrimmageConfigService;
+    this.scrimmageConfig = scrimmageConfig;
   }
 
   @Override
   public boolean verify() {
-    if (!scrimmageConfigService.getAiServerEndpointValidate()) {
+    if (!scrimmageConfig.getApiServerEndpointValidate()) {
+      loggerService.log("Skip scrimmage API server endpoint validation.");
       return true;
     }
     try {

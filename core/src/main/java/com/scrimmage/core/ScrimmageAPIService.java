@@ -9,6 +9,7 @@ import com.scrimmage.common.dto.TokenOption;
 import com.scrimmage.common.dto.TokenResponseDTO;
 import com.scrimmage.common.exceptions.ScrimmageServiceUnavailable;
 import com.scrimmage.common.service.IAPIService;
+import com.scrimmage.common.service.ILoggerService;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -17,103 +18,132 @@ import java.net.http.HttpResponse;
 
 public class ScrimmageAPIService implements IAPIService {
 
-  private static  ScrimmageAPIService INSTANCE;
+  private final ILoggerService logger;
 
-
-  public static ScrimmageAPIService getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new ScrimmageAPIService(ScrimmageServiceFactory.config);
-    }
-    return INSTANCE;
-  }
-  private final ScrimmageConfigService scrimmageConfigService;
+  private final ScrimmageConfig scrimmageConfig;
   private final Gson gson;
 
-
-  private ScrimmageAPIService(ScrimmageConfigService scrimmageConfigService) {
-    this.scrimmageConfigService = scrimmageConfigService;
+  public ScrimmageAPIService(ScrimmageConfig scrimmageConfig,
+      ILoggerService logger) {
+    this.scrimmageConfig = scrimmageConfig;
+    this.logger = logger;
     this.gson = new Gson();
   }
 
   @Override
   public RewardableEventDTO createIntegrationReward(Rewardable rewardable, String uniqueId,
       Reward reward) {
-    HttpResponse<String> response;
-    try {
-      RewardableEventDTO rewardableEventDTO = RewardableEventDTO.builder()
-          .userId(rewardable.getUserId())
-          .eventId(uniqueId)
-          .dataType(rewardable.getType())
-          .body(reward)
-          .build();
+    int attempt = 0;
+    do {
+      HttpResponse<String> response;
+      try {
+        RewardableEventDTO rewardableEventDTO = RewardableEventDTO.builder()
+            .userId(rewardable.getUserId())
+            .eventId(uniqueId)
+            .dataType(rewardable.getType())
+            .body(reward)
+            .build();
 
-      HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(
-              ScrimmageApiServiceType.getUrl(scrimmageConfigService.getApiServerEndpoint()
-                  , ScrimmageApiServiceType.API, "/integrations/rewards")))
-          .POST(BodyPublishers.ofString(gson.toJson(rewardableEventDTO)))
-          .header("Authorization", "Token " + scrimmageConfigService.getPrivateKey())
-          .header("Scrimmage-Namespace", scrimmageConfigService.getNamespace())
-          .header("Content-Type", "application/json")
-          .build();
-      HttpClient client = HttpClient.newHttpClient();
-      response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(
+                ScrimmageApiServiceType.getUrl(scrimmageConfig.getApiServerEndpoint()
+                    , ScrimmageApiServiceType.API, "/integrations/rewards")))
+            .POST(BodyPublishers.ofString(gson.toJson(rewardableEventDTO)))
+            .header("Authorization", "Token " + scrimmageConfig.getPrivateKey())
+            .header("Scrimmage-Namespace", scrimmageConfig.getNamespace())
+            .header("Content-Type", "application/json")
+            .build();
+        HttpClient client = HttpClient.newHttpClient();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return response == null ? null
+            : gson.fromJson(response.body(),
+                RewardableEventDTO.class);
+      } catch (Exception ex) {
+        logger.error(
+            String.format("%s/integrations/rewards is not available", ScrimmageApiServiceType.API));
+      }
 
-    } catch (Exception ex) {
-      throw new ScrimmageServiceUnavailable(
-          String.format("%s is not available", ScrimmageApiServiceType.API));
-    }
-    return response == null ? null
-        : gson.fromJson(response.body(),
-            RewardableEventDTO.class);
+      attempt++;
+      try {
+        Thread.sleep(2000L);
+        logger.info("Retrying... Attempt " + (attempt + 1));
+
+      } catch (Exception ex) {
+        logger.error("Error sleeping", ex);
+      }
+    } while (attempt <= scrimmageConfig.getRetry());
+    throw new ScrimmageServiceUnavailable(
+        String.format("%s/integrations/rewards is not available", ScrimmageApiServiceType.API));
   }
 
   @Override
   public TokenResponseDTO getUserToken(TokenOption options) {
     HttpResponse<String> response;
-    try {
-      HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(
-              ScrimmageApiServiceType.getUrl(scrimmageConfigService.getApiServerEndpoint()
-                  , ScrimmageApiServiceType.API, "/integrations/users")))
-          .POST(BodyPublishers.ofString(gson.toJson(options)))
-          .header("Authorization", "Token " + scrimmageConfigService.getPrivateKey())
-          .header("Scrimmage-Namespace", scrimmageConfigService.getNamespace())
-          .header("Content-Type", "application/json")
-          .build();
-      HttpClient client = HttpClient.newHttpClient();
-      response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    int attempt = 0;
+    do {
+      try {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(
+                ScrimmageApiServiceType.getUrl(scrimmageConfig.getApiServerEndpoint()
+                    , ScrimmageApiServiceType.API, "/integrations/users")))
+            .POST(BodyPublishers.ofString(gson.toJson(options)))
+            .header("Authorization", "Token " + scrimmageConfig.getPrivateKey())
+            .header("Scrimmage-Namespace", scrimmageConfig.getNamespace())
+            .header("Content-Type", "application/json")
+            .build();
+        HttpClient client = HttpClient.newHttpClient();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return response == null ? null
+            : gson.fromJson(response.body(), TokenResponseDTO.class);
+      } catch (Exception ex) {
+        logger.error(
+            String.format("%s is not available", ScrimmageApiServiceType.API));
+      }
+      attempt++;
+      try {
+        Thread.sleep(2000L);
+        logger.info("Retrying... Attempt " + (attempt + 1));
 
-    } catch (Exception ex) {
-      throw new ScrimmageServiceUnavailable(
-          String.format("%s is not available", ScrimmageApiServiceType.API));
-    }
-
-    return response == null ? null
-        : gson.fromJson(response.body(), TokenResponseDTO.class);
+      } catch (Exception ex) {
+        logger.error("Error sleeping", ex);
+      }
+    } while (attempt <= scrimmageConfig.getRetry());
+    throw new ScrimmageServiceUnavailable(
+        String.format("%s/integrations/rewards is not available", ScrimmageApiServiceType.API));
   }
 
   boolean getService(ScrimmageApiServiceType scrimmageApiServiceType) {
 
     HttpResponse<String> response;
+    int attempt = 0;
+    do {
     try {
       HttpRequest request = HttpRequest.newBuilder()
           .uri(URI.create(
-              ScrimmageApiServiceType.getUrl(scrimmageConfigService.getApiServerEndpoint()
+              ScrimmageApiServiceType.getUrl(scrimmageConfig.getApiServerEndpoint()
                   , scrimmageApiServiceType, "/system/status")))
           .GET()
-          .header("Authorization", "Token " + scrimmageConfigService.getPrivateKey())
-          .header("Scrimmage-Namespace", scrimmageConfigService.getNamespace())
+          .header("Authorization", "Token " + scrimmageConfig.getPrivateKey())
+          .header("Scrimmage-Namespace", scrimmageConfig.getNamespace())
           .build();
       HttpClient client = HttpClient.newHttpClient();
       response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+      return response != null && response.statusCode() == 200;
     } catch (Exception ex) {
-      throw new ScrimmageServiceUnavailable(
+      logger.error(
           String.format("%s is not available", scrimmageApiServiceType));
     }
+      attempt++;
+      try {
+        Thread.sleep(2000L);
+        logger.info("Retrying... Attempt " + (attempt + 1));
 
-    return response != null && response.statusCode() == 200;
+      } catch (Exception ex) {
+        logger.error("Error sleeping", ex);
+      }
+    } while (attempt <= scrimmageConfig.getRetry());
+    throw new ScrimmageServiceUnavailable(
+        String.format("%s/system/status is not available", scrimmageApiServiceType));
   }
 
   @Override
@@ -130,23 +160,36 @@ public class ScrimmageAPIService implements IAPIService {
 
   @Override
   public boolean getRewarderKeyDetails() {
-    HttpResponse<String> response;
-    try {
-      HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(
-              ScrimmageApiServiceType.getUrl(scrimmageConfigService.getApiServerEndpoint()
-                  , ScrimmageApiServiceType.API, "/rewarders/keys/@me")))
-          .GET()
-          .header("Authorization", "Token " + scrimmageConfigService.getPrivateKey())
-          .header("Scrimmage-Namespace", scrimmageConfigService.getNamespace())
-          .build();
-      HttpClient client = HttpClient.newHttpClient();
-      response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    int attempt = 1;
+    do {
+      HttpResponse<String> response;
+      try {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(
+                ScrimmageApiServiceType.getUrl(scrimmageConfig.getApiServerEndpoint()
+                    , ScrimmageApiServiceType.API, "/rewarders/keys/@me")))
+            .GET()
+            .header("Authorization", "Token " + scrimmageConfig.getPrivateKey())
+            .header("Scrimmage-Namespace", scrimmageConfig.getNamespace())
+            .build();
+        HttpClient client = HttpClient.newHttpClient();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        return response != null && response.statusCode() == 200;
 
-    } catch (Exception ex) {
-      throw new ScrimmageServiceUnavailable(
-          String.format("%s is not available", ScrimmageApiServiceType.API));
-    }
-    return response != null && response.statusCode() == 200;
+      } catch (Exception ex) {
+        logger.info(
+            String.format("%s is not available", ScrimmageApiServiceType.API));
+      }
+      attempt++;
+      try {
+        Thread.sleep(2000L);
+        logger.info("Retrying... Attempt " + (attempt + 1));
+
+      } catch (Exception ex) {
+        logger.error("Error sleeping", ex);
+      }
+    } while (attempt <= scrimmageConfig.getRetry());
+    throw new ScrimmageServiceUnavailable(
+        String.format("%s/rewarders/keys/@me is not available", ScrimmageApiServiceType.API));
   }
 }

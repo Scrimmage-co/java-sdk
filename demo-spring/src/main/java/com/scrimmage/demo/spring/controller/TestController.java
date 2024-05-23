@@ -5,53 +5,48 @@ import com.scrimmage.common.dto.Rewardable;
 import com.scrimmage.common.dto.RewardableEventDTO;
 import com.scrimmage.common.dto.TokenOption;
 import com.scrimmage.common.dto.TokenResponseDTO;
-import com.scrimmage.common.service.IRewardService;
-import com.scrimmage.common.service.IStatusService;
-import com.scrimmage.common.service.IUserService;
+import com.scrimmage.demo.spring.container.Container;
+import com.scrimmage.demo.spring.container.ContainerType;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TestController {
 
-  private final IUserService userService;
-  private final IStatusService statusService;
-  private final IRewardService rewardService;
+  private final Map<ContainerType, Container> containerTypeContainerMap = new HashMap<>();
 
-
-  public TestController(IUserService userService,
-      IStatusService statusService,
-      IRewardService rewardService) {
-    this.userService = userService;
-    this.statusService = statusService;
-    this.rewardService = rewardService;
+  public TestController(List<Container> containers) {
+    containers.forEach(container -> containerTypeContainerMap.put(container.getType(), container));
   }
 
   @GetMapping("/api/token")
   public TokenResponseDTO testToken() {
     TokenOption tokenOption = new TokenOption();
-    tokenOption.setId("nanachi");
-    return userService.getUserToken(tokenOption);
+    tokenOption.setId("java_nanachi");
+    return containerTypeContainerMap.get(ContainerType.TYPE1).getUser().getUserToken(tokenOption);
   }
 
   @GetMapping("/api/verify/services")
   public boolean verifyServices() {
-   return this.statusService.verify();
+    return containerTypeContainerMap.get(ContainerType.TYPE1).getStatus().verify();
   }
 
   @GetMapping("/api/reward")
   public List<RewardableEventDTO> testReward() {
     Rewardable rewardable = Rewardable.builder()
-        .userId("nanachi")
-        .type("helloWorld")
+        .userId("java_nanachi")
+        .type("java_helloWorld")
         .build();
     Reward reward = Reward.builder()
         .amount(1D)
         .currency("USD")
         .build();
 
-    return this.rewardService.trackRewardable(rewardable,
-        reward);
+    return containerTypeContainerMap.get(ContainerType.TYPE2).getReward()
+        .trackRewardable(rewardable, reward);
+
   }
 }

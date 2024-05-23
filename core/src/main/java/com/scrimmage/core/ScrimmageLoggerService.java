@@ -6,24 +6,15 @@ import java.util.Arrays;
 
 public class ScrimmageLoggerService implements ILoggerService {
 
-  public static ScrimmageLoggerService getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new ScrimmageLoggerService(ScrimmageServiceFactory.config);
-    }
-    return INSTANCE;
-  }
+  private final ScrimmageConfig scrimmageConfig;
 
-  private static ScrimmageLoggerService INSTANCE;
-
-  private final ScrimmageConfigService scrimmageConfigService;
-
-  private ScrimmageLoggerService(ScrimmageConfigService scrimmageConfigService) {
-    this.scrimmageConfigService = scrimmageConfigService;
+  public ScrimmageLoggerService(ScrimmageConfig scrimmageConfig) {
+    this.scrimmageConfig = scrimmageConfig;
   }
 
   @Override
   public void log(Object... args) {
-    if (scrimmageConfigService.getLogLevel().getOrdinal()
+    if (scrimmageConfig.getLogLevel().getOrdinal()
         >= LogLevel.LOG.getOrdinal()) {
       System.out.println(Arrays.toString(args));
     }
@@ -31,7 +22,7 @@ public class ScrimmageLoggerService implements ILoggerService {
 
   @Override
   public void warn(Object... args) {
-    if (scrimmageConfigService.getLogLevel().getOrdinal()
+    if (scrimmageConfig.getLogLevel().getOrdinal()
         >= LogLevel.WARN.getOrdinal()) {
       System.out.println(Arrays.toString(args));
     }
@@ -39,7 +30,7 @@ public class ScrimmageLoggerService implements ILoggerService {
 
   @Override
   public void debug(Object... args) {
-    if (scrimmageConfigService.getLogLevel().getOrdinal()
+    if (scrimmageConfig.getLogLevel().getOrdinal()
         >= LogLevel.DEBUG.getOrdinal()) {
       System.out.println(Arrays.toString(args));
     }
@@ -47,7 +38,7 @@ public class ScrimmageLoggerService implements ILoggerService {
 
   @Override
   public void info(Object... args) {
-    if (scrimmageConfigService.getLogLevel().getOrdinal()
+    if (scrimmageConfig.getLogLevel().getOrdinal()
         >= LogLevel.INFO.getOrdinal()) {
       System.out.println(Arrays.toString(args));
     }
@@ -55,7 +46,7 @@ public class ScrimmageLoggerService implements ILoggerService {
 
   @Override
   public void error(Object... args) {
-    if (scrimmageConfigService.getLogLevel().getOrdinal()
+    if (scrimmageConfig.getLogLevel().getOrdinal()
         >= LogLevel.ERROR.getOrdinal()) {
       System.out.println(Arrays.toString(args));
     }

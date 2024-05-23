@@ -7,17 +7,7 @@ import com.scrimmage.common.service.IUserService;
 
 public class ScrimmageUserService implements IUserService {
 
-  public static ScrimmageUserService getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new ScrimmageUserService(ScrimmageServiceFactory.api);
-    }
-    return INSTANCE;
-  }
-
-  private static ScrimmageUserService INSTANCE;
-
-
-  private final IAPIService iApiService;
+  public final IAPIService iApiService;
 
   public ScrimmageUserService(IAPIService iapiService) {
     this.iApiService = iapiService;

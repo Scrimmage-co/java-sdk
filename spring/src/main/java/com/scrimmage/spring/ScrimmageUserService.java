@@ -4,9 +4,7 @@ import com.scrimmage.common.dto.TokenOption;
 import com.scrimmage.common.dto.TokenResponseDTO;
 import com.scrimmage.common.service.IAPIService;
 import com.scrimmage.common.service.IUserService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ScrimmageUserService implements IUserService {
 
   private final IAPIService iApiService;

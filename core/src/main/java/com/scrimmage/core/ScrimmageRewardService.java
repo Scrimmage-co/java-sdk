@@ -11,19 +11,9 @@ import java.util.List;
 
 public class ScrimmageRewardService implements IRewardService {
 
-  public static ScrimmageRewardService getInstance() {
-    if (INSTANCE == null) {
-      INSTANCE = new ScrimmageRewardService(ScrimmageServiceFactory.api);
-    }
-    return INSTANCE;
-  }
-
-  private static ScrimmageRewardService INSTANCE;
-
-
   private final IAPIService iApiService;
 
-  private ScrimmageRewardService(IAPIService iapiService) {
+  public ScrimmageRewardService(IAPIService iapiService) {
     this.iApiService = iapiService;
   }
 
