@@ -37,7 +37,7 @@ public class ScrimmageStatusService implements IStatusService {
         throw new ScrimmageServiceUnavailable("Rewarder API is not available");
       }
     } catch (Exception ex) {
-      loggerService.error("Rewarder API key is invalid");
+      loggerService.error(ex.getMessage());
       throw new AccountNotLinkedException("Rewarder API is not available");
     }
     return true;

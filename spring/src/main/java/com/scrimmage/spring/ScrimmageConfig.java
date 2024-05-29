@@ -14,11 +14,11 @@ import lombok.NoArgsConstructor;
 public class ScrimmageConfig {
 
   @Default
-  private Boolean apiServerEndpointSecure = true;
+  private Boolean apiServerEndpointSecure = false;
   @Default
   private LogLevel logLevel = LogLevel.INFO;
   @Default
-  private Boolean apiServerEndpointValidate = true;
+  private Boolean apiServerEndpointValidate = false;
   private String apiServerEndpoint;
   private String privateKey;
   private String namespace;

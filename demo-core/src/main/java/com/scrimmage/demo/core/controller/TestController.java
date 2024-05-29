@@ -20,20 +20,23 @@ public class TestController {
       .namespace("")
       .privateKey("")
       .apiServerEndpoint("")
+      .apiServerEndpointSecure(true)
+      .apiServerEndpointValidate(true)
+      .retry(0)
       .build();
 
   @GetMapping("/api/token")
   public TokenResponseDTO testToken() {
     TokenOption tokenOption = new TokenOption();
-    tokenOption.setId("java_nanachi");
+    tokenOption.setId("");
     return new ScrimmageRewardContainer(scrimmageConfig).getApi().getUserToken(tokenOption);
   }
 
   @GetMapping("/api/reward")
   public List<RewardableEventDTO> testReward() {
     Rewardable rewardable = Rewardable.builder()
-        .userId("java_nanachi")
-        .type("java_helloWorld")
+        .userId("")
+        .type("")
         .build();
     Reward reward = Reward.builder()
         .amount(1D)
@@ -42,11 +45,13 @@ public class TestController {
     ScrimmageConfig scrimmageConfig = ScrimmageConfig
         .builder()
         .namespace("")
-        .privateKey("")
+        .privateKey(
+            "")
         .apiServerEndpoint("")
         .logLevel(LogLevel.LOG)
-        .apiServerEndpointSecure(false)
-        .apiServerEndpointSecure(false)
+        .apiServerEndpointSecure(true)
+        .apiServerEndpointValidate(true)
+        .retry(0)
         .build();
 
     return new ScrimmageRewardContainer(scrimmageConfig).getReward()
