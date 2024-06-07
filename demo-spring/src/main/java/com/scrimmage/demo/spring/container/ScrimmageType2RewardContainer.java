@@ -22,6 +22,7 @@ public class ScrimmageType2RewardContainer extends Container {
         .logLevel(LogLevel.LOG)
         .apiServerEndpointSecure(false)
         .apiServerEndpointValidate(false)
+            .retry(0)
         .build();
   }
 

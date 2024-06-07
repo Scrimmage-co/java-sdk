@@ -1,30 +1,25 @@
 package com.scrimmage.spring;
 
-import com.scrimmage.common.exceptions.ScrimmageServiceUnavailable;
-import com.scrimmage.common.helper.ExponentialTimeHelper;
 import com.scrimmage.common.service.ILoggerService;
+import com.scrimmage.common.service.RetryTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-public class RestTemplateWithRetry<B, R> {
+public class RestTemplateWithRetry<B, R> extends RetryTemplate<B, R> {
 
-  private ScrimmageConfig scrimmageConfig;
-  private ILoggerService logger;
+    private final ScrimmageConfig scrimmageConfig;
 
-  public RestTemplateWithRetry(ScrimmageConfig scrimmageConfig,
-      ILoggerService logger) {
-    this.scrimmageConfig = scrimmageConfig;
-    this.logger = logger;
-  }
+    public RestTemplateWithRetry(ScrimmageConfig scrimmageConfig,
+                                 ILoggerService logger) {
+        super(scrimmageConfig.getRetry(), logger);
+        this.scrimmageConfig = scrimmageConfig;
+    }
 
-  public R exchange(String serviceUrl, HttpMethod httpMethod, B requestBody,
-      Class<R> responseType) {
-    int attempts = 0;
-    do {
-      try {
+    @Override
+    public R exchange(String serviceUrl, String httpMethod, B requestBody, Class<R> responseType) {
         RestTemplate restTemplate = new RestTemplate();
         String privateKey = this.scrimmageConfig.getPrivateKey();
         String namespace = this.scrimmageConfig.getNamespace();
@@ -32,32 +27,16 @@ public class RestTemplateWithRetry<B, R> {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", privateKey);
         headers.set("Scrimmage-Namespace", namespace);
+        HttpEntity entity = requestBody == null ? new HttpEntity<>(headers)
+                : new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<R> response = restTemplate.exchange(
-            serviceUrl,
-            httpMethod,
-            requestBody == null ? new HttpEntity<>(headers)
-                : new HttpEntity<>(requestBody, headers),
-            responseType);
-        return response.getBody();
-      } catch (Exception ex) {
-        logger.error("Error while requesting", serviceUrl, ex);
-      }
-      if (attempts < scrimmageConfig.getRetry()) {
-        attempts++;
-        try {
-          Thread.sleep(ExponentialTimeHelper.getExponentialTime(attempts));
-          logger.info("Retrying... Attempt ", attempts);
+        ResponseEntity<R> exchange = restTemplate.exchange(
+                serviceUrl,
+                HttpMethod.valueOf(httpMethod),
+                entity,
+                responseType);
+        return exchange.getBody();
 
-        } catch (Exception ex) {
-          logger.error("Error sleeping", ex);
-        }
-      } else {
-        break;
-      }
-    } while (true);
-    throw new ScrimmageServiceUnavailable(
-        String.format("%s is not available", serviceUrl));
-  }
+    }
 }
 
